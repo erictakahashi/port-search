@@ -7,7 +7,7 @@ import Home from '../containers/Home/Home';
 import App from '../App';
 
 /**
- * Factory function that will an `App` shallow wrapper.
+ * Factory function that will create an `App` shallow wrapper.
  */
 const setup = () => shallow(<App />);
 

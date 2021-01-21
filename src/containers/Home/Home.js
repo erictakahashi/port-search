@@ -1,5 +1,9 @@
+import Styled from './Home.styled';
+
 const Home = () => (
-  <div>Home</div>
+  <Styled.Wrapper>
+    <Styled.Navbar />
+  </Styled.Wrapper>
 );
 
 export default Home;
