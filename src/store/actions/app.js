@@ -1,0 +1,5 @@
+export const appActions = {
+  HAS_ERROR: 'HAS_ERROR',
+  START_LOADING: 'START_LOADING',
+  STOP_LOADING: 'STOP_LOADING'
+};
