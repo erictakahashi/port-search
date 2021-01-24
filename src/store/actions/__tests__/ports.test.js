@@ -3,6 +3,7 @@ import { appActions } from '../app';
 import {
   computeTargetPorts,
   getPorts,
+  getRates,
   portsActions,
   removePort,
   selectDestination,
@@ -120,6 +121,72 @@ describe('ports action', () => {
             type: appActions.HAS_ERROR,
             payload: er
           });
+        });
+      });
+    });
+  });
+
+  describe('getRates', () => {
+    const originPort = 'origin';
+    const destinationPort = 'destination';
+
+    it('should not call axios `get` nor `dispatch` when a destination or origin port is not provided', () => {
+      getRates(originPort, '')(dispatch);
+
+      expect(get).not.toHaveBeenCalled();
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('should call axios `get` with the proper path, call dispatch with `START_LOADING` action, and call dispatch with `STOP_LOADING` once the `get` promise is done', async () => {
+      const promiseTimeout = new Promise((resolve) => (
+        setTimeout(() => resolve(), 100)
+      ));
+      get.mockReturnValue(promiseTimeout);
+
+      getRates(originPort, destinationPort)(dispatch);
+
+      const expectedPath = `/rates?origin=${originPort}&destination=${destinationPort}`;;
+      expect(get).toHaveBeenCalledWith(expectedPath);
+
+      expect(dispatch).toHaveBeenCalledWith({ type: appActions.START_LOADING });
+
+      await get();
+
+      expect(dispatch).toHaveBeenCalledWith({ type: appActions.STOP_LOADING });
+    });
+
+    it('should call dispatch with `SET_DESTINATION_PORTS`, `SET_ORIGIN_PORTS`, and `SET_PORTS` action and the `get` response data as the payload', () => {
+      const promiseResolve = new Promise((resolve) => (
+        setTimeout(() => resolve({ data: ports }), 100)
+      ));
+      getState.mockReturnValue({ ports: { ports: [] } });
+      get.mockReturnValue(promiseResolve);
+
+      getRates(originPort, destinationPort)(dispatch);
+
+      return get().then(resolve => {
+        expect(dispatch).toHaveBeenCalledWith({
+          type: portsActions.SET_RATES,
+          payload: resolve.data
+        });
+      });
+    });
+
+    it('should call dispatch with `HAS_ERROR` action and the `get` error as the payload', () => {
+      const error = 'Error';
+      const promiseReject = new Promise((_, reject) => (
+        setTimeout(() => reject(error), 100)
+      ));
+
+      getState.mockReturnValue({ ports: { ports: [] } });
+      get.mockReturnValue(promiseReject);
+
+      getRates(originPort, destinationPort)(dispatch);
+
+      return get().catch(er => {
+        expect(dispatch).toHaveBeenCalledWith({
+          type: appActions.HAS_ERROR,
+          payload: er
         });
       });
     });

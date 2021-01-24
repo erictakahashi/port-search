@@ -41,6 +41,32 @@ export const getPorts = () => async (dispatch, getState) => {
 };
 
 /**
+ * Get rates from the API:
+ * It will make the request when origin and
+ * destination ports are provided.
+ * @param {string} originPort Selected origin port.
+ * @param {string} destinationPort Selected destination port.
+ */
+export const getRates = (originPort, destinationPort) => async (dispatch) => {
+  if (!!originPort && !!destinationPort) {
+    dispatch({ type: appActions.START_LOADING });
+
+    try {
+      const response = await axios.get(`/rates?origin=${originPort}&destination=${destinationPort}`);
+      const { data = [] } = response || {};
+
+      if (!!data.length)
+        dispatch({ type: portsActions.SET_RATES, payload: data });
+
+    } catch (error) {
+      dispatch({ type: appActions.HAS_ERROR, payload: error });
+    }
+
+    dispatch({ type: appActions.STOP_LOADING });
+  }
+};
+
+/**
  * Select the selected destination, and compute the array of destination ports.
  * @param {string} destinationCode Code of the destination port.
  */

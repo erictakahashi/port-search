@@ -14,6 +14,8 @@ describe('useHome Hook', () => {
 
   let getPorts, getPortsFn;
 
+  let getRates, getRatesFn;
+
   let selectDestination, selectOrigin;
 
   let useSelector;
@@ -36,6 +38,10 @@ describe('useHome Hook', () => {
     getPorts = jest.spyOn(ActionsPorts, 'getPorts');
     getPorts.mockReturnValue(getPortsFn);
 
+    getRatesFn = jest.fn();
+    getRates = jest.spyOn(ActionsPorts, 'getRates');
+    getRates.mockReturnValue(getRatesFn);
+
     selectDestination = jest.spyOn(ActionsPorts, 'selectDestination');
     selectOrigin = jest.spyOn(ActionsPorts, 'selectOrigin');
 
@@ -56,9 +62,14 @@ describe('useHome Hook', () => {
     jest.clearAllMocks();
   });
 
-  it('should call `dispatch` with `getPorts` method when the hook first mount', () => {
+  it('should call `dispatch` with `getPorts` method', () => {
     buildHook();
     expect(dispatchFn).toHaveBeenCalledWith(getPortsFn);
+  });
+
+  it('should call `dispatch` with `getRates` method', () => {
+    buildHook();
+    expect(dispatchFn).toHaveBeenCalledWith(getRates(valueB, valueA));
   });
 
   it('should return `destinationPorts` from store', () => {
