@@ -6,45 +6,9 @@ export const portsActions = {
   SET_DESTINATION_PORTS: 'SET_DESTINATION_PORTS',
   SET_ORIGIN_PORTS: 'SET_ORIGIN_PORTS',
   SET_PORTS: 'SET_PORTS',
-  SET_RATES: 'SET_RATES'
-};
-
-/**
- * Compute the array of ports destination:
- * It will remove the origin port from array of destination ports.
- * @param {string} originCode Code of the origin port.
- */
-export const computeDestination = (originCode) => (dispatch, getState) => {
-  const ports = getState().ports;
-  const allPorts = ports.ports || [];
-  const destinationPorts = ports.destinationPorts || [];
-
-  if (!allPorts.length) return;
-
-  if (!!destinationPorts.find(port => port.code === originCode))
-    dispatch({
-      type: portsActions.SET_DESTINATION_PORTS,
-      payload: removePort(allPorts, originCode)
-    });
-};
-
-/**
- * Compute the array of ports origin:
- * It will remove the destionation port from array of origin ports.
- * @param {string} destinationCode Code of the destination port.
- */
-export const computeOrigin = (destinationCode) => (dispatch, getState) => {
-  const ports = getState().ports;
-  const allPorts = ports.ports || [];
-  const originPorts = ports.originPorts || [];
-
-  if (!allPorts.length) return;
-
-  if (!!originPorts.find(port => port.code === destinationCode))
-    dispatch({
-      type: portsActions.SET_ORIGIN_PORTS,
-      payload: removePort(allPorts, destinationCode)
-    });
+  SET_RATES: 'SET_RATES',
+  SET_SELECTED_DESTINATION: 'SET_SELECTED_DESTINATION',
+  SET_SELECTED_ORIGIN: 'SET_SELECTED_ORIGIN'
 };
 
 /**
@@ -63,29 +27,74 @@ export const getPorts = () => async (dispatch, getState) => {
       const { data = [] } = response || {};
 
       if (!!data.length) {
-        dispatch({
-          type: portsActions.SET_DESTINATION_PORTS,
-          payload: data
-        });
-        dispatch({
-          type: portsActions.SET_ORIGIN_PORTS,
-          payload: data
-        });
-        dispatch({
-          type: portsActions.SET_PORTS,
-          payload: data
-        });
+        dispatch({ type: portsActions.SET_DESTINATION_PORTS, payload: data });
+        dispatch({ type: portsActions.SET_ORIGIN_PORTS, payload: data });
+        dispatch({ type: portsActions.SET_PORTS, payload: data });
       }
 
     } catch (error) {
-      dispatch({
-        type: appActions.HAS_ERROR,
-        payload: error
-      });
+      dispatch({ type: appActions.HAS_ERROR, payload: error });
     }
 
     dispatch({ type: appActions.STOP_LOADING });
   }
+};
+
+/**
+ * Select the selected destination, and compute the array of destination ports.
+ * @param {string} destinationCode Code of the destination port.
+ */
+export const selectDestination = (destinationCode) => (dispatch, getState) => {
+  dispatch({ type: portsActions.SET_SELECTED_DESTINATION, payload: destinationCode });
+
+  computeTargetPorts({
+    dispatch,
+    getState,
+    portsArrayName: 'originPorts',
+    action: portsActions.SET_ORIGIN_PORTS,
+    portCode: destinationCode
+  });
+};
+
+/**
+ * Select the selected origin, and compute the array of origin ports.
+ * @param {string} originCode Code of the origin port.
+ */
+export const selectOrigin = (originCode) => (dispatch, getState) => {
+  dispatch({ type: portsActions.SET_SELECTED_ORIGIN, payload: originCode });
+
+  computeTargetPorts({
+    dispatch,
+    getState,
+    portsArrayName: 'destinationPorts',
+    action: portsActions.SET_DESTINATION_PORTS,
+    portCode: originCode
+  });
+};
+
+/**
+ * Compute the provided array of ports:
+ * It will take the provided `portCode`, remove from `ports` array,
+ * and set this new array as the `portsArrayName`, and then
+ * dispatches the this new array.
+ * @param {function} dispatch Dispatch method.
+ * @param {function} getState The redux state.
+ * @param {string} portsArrayName The name of the ports array that will should be computed.
+ * @param {string} action The action to be dispatched.
+ * @param {string} portCode The port code to be removed from the array of ports.
+ */
+export const computeTargetPorts = ({ dispatch, getState, portsArrayName, action, portCode }) => {
+  const ports = getState().ports;
+  const allPorts = ports.ports || [];
+  const targetPorts = ports[portsArrayName] || [];
+
+  if (!allPorts.length) return;
+
+  if (!!targetPorts.find(port => port.code === portCode))
+    dispatch({
+      type: action,
+      payload: removePort(allPorts, portCode)
+    });
 };
 
 /**

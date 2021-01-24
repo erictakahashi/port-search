@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import nextId from 'react-id-generator';
 import PropTypes from 'prop-types';
 
@@ -13,16 +12,13 @@ const Select = (props) => {
     itemAttrValue,
     items,
     label,
-    onChange
+    onChange,
+    selectedValue
   } = props;
-
-  const [value, setValue] = useState('');
 
   const compId = nextId();
 
   const handleChange = (e) => {
-    setValue(e.target.value);
-
     if (!!onChange) onChange(e);
   };
 
@@ -31,7 +27,7 @@ const Select = (props) => {
       <Styled.Label id={compId}>{label}</Styled.Label>
 
       <Styled.Select
-        value={value}
+        value={selectedValue}
         labelId={compId}
         onChange={handleChange}
       >
@@ -63,7 +59,9 @@ Select.propTypes = {
   /** Select field label. */
   label: PropTypes.string,
   /** Component select `onChange`. */
-  onChange: PropTypes.func
+  onChange: PropTypes.func,
+  /** The selected value to be displayed in the select component. */
+  selectedValue: PropTypes.string
 };
 
 export default Select;

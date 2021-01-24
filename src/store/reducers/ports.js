@@ -4,7 +4,9 @@ const initialState = {
   destinationPorts: [],
   originPorts: [],
   ports: [],
-  rates: []
+  rates: [],
+  selectedDestination: '',
+  selectedOrigin: ''
 };
 
 export const ports = (state = initialState, { type, payload = {} }) => {
@@ -31,6 +33,18 @@ export const ports = (state = initialState, { type, payload = {} }) => {
       return {
         ...state,
         rates: [...payload]
+      };
+
+    case portsActions.SET_SELECTED_DESTINATION:
+      return {
+        ...state,
+        selectedDestination: payload
+      };
+
+    case portsActions.SET_SELECTED_ORIGIN:
+      return {
+        ...state,
+        selectedOrigin: payload
       };
 
     default:

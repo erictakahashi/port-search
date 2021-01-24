@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { computeDestination, computeOrigin, getPorts } from '../../store/actions/ports';
+import { getPorts, selectDestination, selectOrigin } from '../../store/actions/ports';
 
 /**
  * Hook to support `Home`container.
@@ -17,25 +17,24 @@ export const useHome = () => {
   const {
     destinationPorts,
     originPorts,
-    ports
+    selectedDestination,
+    selectedOrigin
   } = portsState;
 
   /**
-   * Handle when destination field change:
-   * Dispatch a method to compute the array of origin ports.
+   * Handle when destination field change.
    */
   const handleDestinationChange = useCallback((e) => {
     const value = e.target.value;
-    dispatch(computeOrigin(value))
+    dispatch(selectDestination(value))
   }, [dispatch]);
 
   /**
-   * Handle when origin field change:
-   * Dispatch a method to compute the array of destination ports.
+   * Handle when origin field change.
    */
   const handleOriginChange = useCallback((e) => {
     const value = e.target.value;
-    dispatch(computeDestination(value))
+    dispatch(selectOrigin(value))
   }, [dispatch]);
 
   return {
@@ -43,6 +42,7 @@ export const useHome = () => {
     handleOriginChange,
     destinationPorts,
     originPorts,
-    ports
+    selectedDestination,
+    selectedOrigin
   };
 };

@@ -10,7 +10,8 @@ const Home = () => {
     handleOriginChange,
     destinationPorts = [],
     originPorts = [],
-    ports = []
+    selectedDestination,
+    selectedOrigin
   } = useHome();
 
   return (
@@ -22,17 +23,19 @@ const Home = () => {
           <Styled.SelectOrigin
             itemAttrLabel="name"
             itemAttrValue="code"
-            items={!originPorts.length ? ports : originPorts}
+            items={originPorts}
             label="Origin"
             onChange={handleOriginChange}
+            selectedValue={selectedOrigin}
           />
           <Styled.SelectGap />
           <Styled.SelectDestination
             itemAttrLabel="name"
             itemAttrValue="code"
-            items={!destinationPorts.length ? ports : destinationPorts}
+            items={destinationPorts}
             label="Destination"
             onChange={handleDestinationChange}
+            selectedValue={selectedDestination}
           />
         </Styled.Fields>
       </Styled.Container>

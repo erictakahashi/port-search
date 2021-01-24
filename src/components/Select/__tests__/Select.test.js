@@ -1,4 +1,3 @@
-import React from 'react';
 import { shallow } from 'enzyme';
 
 import Select from '../Select';
@@ -24,22 +23,6 @@ const setup = (customProps = {}) => {
 };
 
 describe('Select', () => {
-  let setState, useState;
-
-  beforeEach(() => {
-    setState = jest.fn();
-    useState = jest.spyOn(React, 'useState');
-    useState.mockImplementation((init) => [init, setState]);
-  });
-
-  afterAll(() => {
-    jest.restoreAllMocks();
-  });
-
-  afterAll(() => {
-    jest.clearAllMocks();
-  });
-
   it('should render a `form control` container', () => {
     const component = setup();
     const formControl = component.find(Styled.FormControl);
@@ -111,19 +94,6 @@ describe('Select', () => {
   });
 
   describe('onChange', () => {
-    it('should call `setState` with the component target value when select onChange happens', () => {
-      const component = setup();
-      const select = component.find(Styled.Select);
-      const onChangeProp = select.prop('onChange');
-
-      const mockedValue = 'A';
-      const mockedEvent = { target: { value: mockedValue } };
-
-      onChangeProp(mockedEvent);
-
-      expect(setState).toHaveBeenCalledWith(mockedValue);
-    });
-
     it('should set and call the component `onChange` prop as expect', () => {
       const customOnChange = jest.fn();
 

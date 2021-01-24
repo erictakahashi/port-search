@@ -14,10 +14,11 @@ describe('Home', () => {
     handleDestinationChange,
     handleOriginChange;
 
-  const mockedPorts = ['A', 'B'];
+  const valueA = 'A';
+  const valueB = 'B';
+  const mockedPorts = [valueA, valueB];
   const destinationPorts = mockedPorts;
   const originPorts = mockedPorts;
-  const ports = mockedPorts;
 
   beforeEach(() => {
     useHome = jest.spyOn(UseHome, 'useHome');
@@ -28,7 +29,8 @@ describe('Home', () => {
       handleOriginChange,
       destinationPorts,
       originPorts,
-      ports
+      selectedDestination: valueA,
+      selectedOrigin: valueB
     });
   });
 
@@ -93,31 +95,14 @@ describe('Home', () => {
       const itemAttrValueProp = selectOrigin.prop('itemAttrValue');
       expect(itemAttrValueProp).toBe('code');
 
-      const labelProp = selectOrigin.prop('label');
-      expect(labelProp).toBe('Origin');
-    });
-
-    it('should set `originPorts` as the `items` when there are origin ports data', () => {
-      const component = setup();
-      const selectOrigin = component.find(Styled.SelectOrigin);
-
       const itemsProp = selectOrigin.prop('items');
       expect(itemsProp).toEqual(originPorts);
-    });
 
-    it('should set `ports` as the `items` when there are no origin ports data', () => {
-      useHome.mockReturnValue({
-        handleDestinationChange,
-        handleOriginChange,
-        destinationPorts,
-        ports
-      });
+      const labelProp = selectOrigin.prop('label');
+      expect(labelProp).toBe('Origin');
 
-      const component = setup();
-      const selectOrigin = component.find(Styled.SelectOrigin);
-
-      const itemsProp = selectOrigin.prop('items');
-      expect(itemsProp).toEqual(ports);
+      const selectedValueProp = selectOrigin.prop('selectedValue');
+      expect(selectedValueProp).toBe(valueB);
     });
 
     it('should call `handleOriginChange` when select origin change', () => {
@@ -142,31 +127,14 @@ describe('Home', () => {
       const itemAttrValueProp = selectDestination.prop('itemAttrValue');
       expect(itemAttrValueProp).toBe('code');
 
-      const labelProp = selectDestination.prop('label');
-      expect(labelProp).toBe('Destination');
-    });
-
-    it('should set `originPorts` as the `items` when there are origin ports data', () => {
-      const component = setup();
-      const selectDestination = component.find(Styled.SelectDestination);
-
       const itemsProp = selectDestination.prop('items');
       expect(itemsProp).toEqual(destinationPorts);
-    });
 
-    it('should set `ports` as the `items` when there are no origin ports data', () => {
-      useHome.mockReturnValue({
-        handleDestinationChange,
-        handleOriginChange,
-        destinationPorts,
-        ports
-      });
+      const labelProp = selectDestination.prop('label');
+      expect(labelProp).toBe('Destination');
 
-      const component = setup();
-      const selectDestination = component.find(Styled.SelectDestination);
-
-      const itemsProp = selectDestination.prop('items');
-      expect(itemsProp).toEqual(ports);
+      const selectedValueProp = selectDestination.prop('selectedValue');
+      expect(selectedValueProp).toBe(valueA);
     });
 
     it('should call `handleDestinationChange` when select destination change', () => {

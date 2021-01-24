@@ -21,7 +21,7 @@ describe('ports reducer', () => {
     expect(state.destinationPorts).toEqual(portsData);
   });
 
-  it('should set the payload as the state `ports` when `SET_PORTS` action type is provided', () => {
+  it('should set the payload as the state `originPorts` when `SET_ORIGIN_PORTS` action type is provided', () => {
     const portsData = [{ name: 'A' }];
 
     const state = ports(initialState, {
@@ -52,6 +52,28 @@ describe('ports reducer', () => {
     });
 
     expect(state.rates).toEqual(rateData);
+  });
+
+  it('should set the payload as the state `selectedDestination` when `SET_SELECTED_DESTINATION` action type is provided', () => {
+    const selectedValue = 'A';
+
+    const state = ports(initialState, {
+      type: portsActions.SET_SELECTED_DESTINATION,
+      payload: selectedValue
+    });
+
+    expect(state.selectedDestination).toEqual(selectedValue);
+  });
+
+  it('should set the payload as the state `selectedOrigin` when `SET_SELECTED_ORIGIN` action type is provided', () => {
+    const selectedValue = 'A';
+
+    const state = ports(initialState, {
+      type: portsActions.SET_SELECTED_ORIGIN,
+      payload: selectedValue
+    });
+
+    expect(state.selectedOrigin).toEqual(selectedValue);
   });
 
   it('should return the current state by default when an invalid action is provided', () => {
