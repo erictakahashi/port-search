@@ -9,6 +9,10 @@ describe('mixins', () => {
     it('should have a `container` mixin', () => {
       expect(mixins.container).toBeTruthy();
     });
+
+    it('should have a `isMobile` mixin', () => {
+      expect(mixins.isMobile).toBeTruthy();
+    });
   });
 
   describe('container', () => {
