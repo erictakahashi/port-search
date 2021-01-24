@@ -5,7 +5,13 @@ import { useHome } from './useHome';
  * Home container.
  */
 const Home = () => {
-  const { ports } = useHome();
+  const {
+    handleDestinationChange,
+    handleOriginChange,
+    destinationPorts = [],
+    originPorts = [],
+    ports = []
+  } = useHome();
 
   return (
     <Styled.Wrapper>
@@ -16,15 +22,17 @@ const Home = () => {
           <Styled.SelectOrigin
             itemAttrLabel="name"
             itemAttrValue="code"
-            items={ports}
+            items={!originPorts.length ? ports : originPorts}
             label="Origin"
+            onChange={handleOriginChange}
           />
           <Styled.SelectGap />
           <Styled.SelectDestination
             itemAttrLabel="name"
             itemAttrValue="code"
-            items={ports}
+            items={!destinationPorts.length ? ports : destinationPorts}
             label="Destination"
+            onChange={handleDestinationChange}
           />
         </Styled.Fields>
       </Styled.Container>

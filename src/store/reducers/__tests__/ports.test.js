@@ -2,10 +2,35 @@ import { portsActions } from '../../actions/ports';
 import { ports } from '../ports';
 
 describe('ports reducer', () => {
+  const allPorts = ['A', 'B'];
   const initialState = {
-    ports: ['A', 'B'],
+    destinationPorts: allPorts,
+    originPorts: allPorts,
+    ports: allPorts,
     rates: [1, 2]
   };
+
+  it('should set the payload as the state `destinationPorts` when `SET_DESTINATION_PORTS` action type is provided', () => {
+    const portsData = [{ name: 'A' }];
+
+    const state = ports(initialState, {
+      type: portsActions.SET_DESTINATION_PORTS,
+      payload: portsData
+    });
+
+    expect(state.destinationPorts).toEqual(portsData);
+  });
+
+  it('should set the payload as the state `ports` when `SET_PORTS` action type is provided', () => {
+    const portsData = [{ name: 'A' }];
+
+    const state = ports(initialState, {
+      type: portsActions.SET_ORIGIN_PORTS,
+      payload: portsData
+    });
+
+    expect(state.originPorts).toEqual(portsData);
+  });
 
   it('should set the payload as the state `ports` when `SET_PORTS` action type is provided', () => {
     const portsData = [{ name: 'A' }];

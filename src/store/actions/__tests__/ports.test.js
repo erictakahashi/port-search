@@ -1,13 +1,16 @@
 import axios from '../../../utils/api';
 import { appActions } from '../app';
-import { getPorts, portsActions } from '../ports';
+import { computeDestination, computeOrigin, getPorts, portsActions, removePort } from '../ports';
 
 describe('ports action', () => {
   let get;
 
   let dispatch, getState;
 
-  const ports = ['A', 'B'];
+  const valueA = { code: 'A', value: 'Value A' };
+  const valueB = { code: 'B', value: 'Value B' };
+  const ports = [valueA, valueB];
+  const portsState = { ports };
 
   beforeAll(() => {
     get = jest.spyOn(axios, 'get');
@@ -34,10 +37,90 @@ describe('ports action', () => {
     });
   });
 
+  describe('computeDestination', () => {
+    it('should not call `dispatch` when there are no ports', () => {
+      getState.mockReturnValue({ ports: { ports: [] } });
+
+      computeDestination('code')(dispatch, getState);
+
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('should not call `dispatch` when the provided port is not part of `destinationPorts`', () => {
+      getState.mockReturnValue({
+        ports: {
+          ports,
+          destinationPorts: [valueA]
+        }
+      });
+
+      computeDestination('B')(dispatch, getState);
+
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('should call `dispatch` when the provided port is part of `destinationPorts`', () => {
+      getState.mockReturnValue({
+        ports: {
+          ports,
+          destinationPorts: [valueA]
+        }
+      });
+
+      const code = 'A';
+      computeDestination(code)(dispatch, getState);
+
+      expect(dispatch).toHaveBeenCalledWith({
+        type: portsActions.SET_DESTINATION_PORTS,
+        payload: removePort(ports, code)
+      });
+    });
+  });
+
+  describe('computeOrigin', () => {
+    it('should not call `dispatch` when there are no ports', () => {
+      getState.mockReturnValue({ ports: { ports: [] } });
+
+      computeOrigin('code')(dispatch, getState);
+
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('should not call `dispatch` when the provided port is not part of `destinationPorts`', () => {
+      getState.mockReturnValue({
+        ports: {
+          ports,
+          originPorts: [valueA]
+        }
+      });
+
+      computeOrigin('B')(dispatch, getState);
+
+      expect(dispatch).not.toHaveBeenCalled();
+    });
+
+    it('should call `dispatch` when the provided port is part of `destinationPorts`', () => {
+      getState.mockReturnValue({
+        ports: {
+          ports,
+          originPorts: [valueA]
+        }
+      });
+
+      const code = 'A';
+      computeOrigin(code)(dispatch, getState);
+
+      expect(dispatch).toHaveBeenCalledWith({
+        type: portsActions.SET_ORIGIN_PORTS,
+        payload: removePort(ports, code)
+      });
+    });
+  });
+
   describe('getPorts', () => {
     describe('pre existing `ports` data in the state', () => {
       it('should not call axios `get` nor `dispatch`', () => {
-        getState.mockReturnValue({ ports });
+        getState.mockReturnValue({ ports: portsState });
 
         getPorts()(dispatch, getState);
 
@@ -52,7 +135,7 @@ describe('ports action', () => {
           setTimeout(() => resolve(), 100)
         ));
 
-        getState.mockReturnValue({ ports: [] });
+        getState.mockReturnValue({ ports: { ports: [] } });
         get.mockReturnValue(promiseTimeout);
 
         getPorts()(dispatch, getState);
@@ -67,17 +150,25 @@ describe('ports action', () => {
         expect(dispatch).toHaveBeenCalledWith({ type: appActions.STOP_LOADING });
       });
 
-      it('should call dispatch with `SET_PORTS` action and the `get` response data as the payload', () => {
+      it('should call dispatch with `SET_DESTINATION_PORTS`, `SET_ORIGIN_PORTS`, and `SET_PORTS` action and the `get` response data as the payload', () => {
         const promiseResolve = new Promise((resolve) => (
           setTimeout(() => resolve({ data: ports }), 100)
         ));
 
-        getState.mockReturnValue({ ports: [] });
+        getState.mockReturnValue({ ports: { ports: [] } });
         get.mockReturnValue(promiseResolve);
 
         getPorts()(dispatch, getState);
 
         return get().then(resolve => {
+          expect(dispatch).toHaveBeenCalledWith({
+            type: portsActions.SET_DESTINATION_PORTS,
+            payload: resolve.data
+          });
+          expect(dispatch).toHaveBeenCalledWith({
+            type: portsActions.SET_ORIGIN_PORTS,
+            payload: resolve.data
+          });
           expect(dispatch).toHaveBeenCalledWith({
             type: portsActions.SET_PORTS,
             payload: resolve.data
@@ -91,7 +182,7 @@ describe('ports action', () => {
           setTimeout(() => reject(error), 100)
         ));
 
-        getState.mockReturnValue({ ports: [] });
+        getState.mockReturnValue({ ports: { ports: [] } });
         get.mockReturnValue(promiseReject);
 
         getPorts()(dispatch, getState);
@@ -105,4 +196,16 @@ describe('ports action', () => {
       });
     });
   });
+
+  describe('removePort', () => {
+    it('should return the provided `ports` when the `portCode` is not part of the array of ports', () => {
+      const computedPorts = removePort(ports, 'C');
+      expect(computedPorts).toEqual(ports);
+    });
+
+    it.only('should return the array of `ports` without the item corresponding to the provided `portCode`', () => {
+      const computedPorts = removePort(ports, 'A');
+      expect(computedPorts).toEqual([valueB]);
+  });
+});
 });
