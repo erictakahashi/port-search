@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { Chart as GoogleChart } from 'react-google-charts';
 
 import NavbarComp from '../../components/Navbar/Navbar';
 import Select from '../../components/Select/Select';
@@ -34,10 +35,20 @@ const SelectGap = styled.div`
 
 const SelectDestination = styled(Select)``;
 
+const NoChart = styled.div`
+  margin: 30px 0;
+`;
+
+const Chart = styled(GoogleChart)`
+  margin: 30px 0;
+`;
+
 const Styled = {
+  Chart,
   Container,
   Fields,
   Navbar,
+  NoChart,
   SelectDestination,
   SelectGap,
   SelectOrigin,

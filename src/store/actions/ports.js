@@ -47,7 +47,9 @@ export const getPorts = () => async (dispatch, getState) => {
  * @param {string} originPort Selected origin port.
  * @param {string} destinationPort Selected destination port.
  */
-export const getRates = (originPort, destinationPort) => async (dispatch) => {
+export const getRates = (originPort, destinationPort) => async (dispatch, getState) => {
+  const rates = getState().ports.rates;
+
   if (!!originPort && !!destinationPort) {
     dispatch({ type: appActions.START_LOADING });
 
@@ -55,10 +57,13 @@ export const getRates = (originPort, destinationPort) => async (dispatch) => {
       const response = await axios.get(`/rates?origin=${originPort}&destination=${destinationPort}`);
       const { data = [] } = response || {};
 
-      if (!!data.length)
-        dispatch({ type: portsActions.SET_RATES, payload: data });
+      const dataForGraph = prepareDataForGraph(data);
+
+      if (!!dataForGraph.length)
+        dispatch({ type: portsActions.SET_RATES, payload: dataForGraph });
 
     } catch (error) {
+      if (!!rates.length) dispatch({ type: portsActions.SET_RATES, payload: [] });
       dispatch({ type: appActions.HAS_ERROR, payload: error });
     }
 
@@ -98,6 +103,8 @@ export const selectOrigin = (originCode) => (dispatch, getState) => {
   });
 };
 
+// Support methods.
+
 /**
  * Compute the provided array of ports:
  * It will take the provided `portCode`, remove from `ports` array,
@@ -122,6 +129,14 @@ export const computeTargetPorts = ({ dispatch, getState, portsArrayName, action,
       payload: removePort(allPorts, portCode)
     });
 };
+
+export const prepareDataForGraph = (data) => (
+  [...data].reduce((final, curr, index) => {
+    if (index === 0) final.push(Object.keys(curr));
+    final.push(Object.values(curr));
+    return final
+  }, [])
+);
 
 /**
  * It will remove the provided port from the provided

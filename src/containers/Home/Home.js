@@ -10,6 +10,7 @@ const Home = () => {
     handleOriginChange,
     destinationPorts = [],
     originPorts = [],
+    rates,
     selectedDestination,
     selectedOrigin
   } = useHome();
@@ -38,9 +39,41 @@ const Home = () => {
             selectedValue={selectedDestination}
           />
         </Styled.Fields>
+
+        <RenderChart
+          rates={rates}
+          selectedDestination={selectedDestination}
+          selectedOrigin={selectedOrigin}
+        />
       </Styled.Container>
     </Styled.Wrapper>
   );
 };
 
 export default Home;
+
+/**
+ * It will display the chart or not depending on the available data.
+ * @param {array} rates The rates to be displayed the chart.
+ */
+export const RenderChart = (props) => {
+  const {
+    rates = [],
+    selectedDestination,
+    selectedOrigin
+  } = props;
+
+  if (!rates.length || !selectedDestination || !selectedOrigin)
+    return (
+      <Styled.NoChart>
+        Not enough data to display the chart.
+      </Styled.NoChart>
+    );
+
+  return (
+    <Styled.Chart
+      chartType="Line"
+      data={rates}
+    />
+  );
+};

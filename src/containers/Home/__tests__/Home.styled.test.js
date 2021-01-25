@@ -6,6 +6,10 @@ import Styled from '../Home.styled';
 
 describe('Home Styled Components', () => {
   describe('exported components', () => {
+    it('should have a `Chart` component', () => {
+      expect(Styled.Chart).toBeTruthy();
+    });
+
     it('should have a `Container` component', () => {
       expect(Styled.Container).toBeTruthy();
     });
@@ -16,6 +20,10 @@ describe('Home Styled Components', () => {
 
     it('should have a `Navbar` component', () => {
       expect(Styled.Navbar).toBeTruthy();
+    });
+
+    it('should have a `NoChart` component', () => {
+      expect(Styled.NoChart).toBeTruthy();
     });
 
     it('should have a `SelectDestination` component', () => {
@@ -60,6 +68,14 @@ describe('Home Styled Components', () => {
       const mediaQuery = rawMedia.replace('@media ', '');
 
       expect(selectGap).toHaveStyleRule('height', '30px', { media: mediaQuery });
+    });
+  });
+
+  describe('no chart', () => {
+    it('should have the proper style rules', () => {
+      const noChart = renderer.create(<Styled.NoChart />).toJSON();
+
+      expect(noChart).toHaveStyleRule('margin', '30px 0');
     });
   });
 });

@@ -17,6 +17,7 @@ export const useHome = () => {
   const {
     destinationPorts,
     originPorts,
+    rates,
     selectedDestination,
     selectedOrigin
   } = portsState;
@@ -46,6 +47,7 @@ export const useHome = () => {
     handleOriginChange,
     destinationPorts,
     originPorts,
+    rates,
     selectedDestination,
     selectedOrigin
   };

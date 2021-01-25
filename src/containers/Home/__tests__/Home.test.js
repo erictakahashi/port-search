@@ -1,6 +1,6 @@
 import { shallow } from 'enzyme';
 
-import Home from '../Home';
+import Home, { RenderChart } from '../Home';
 import Styled from '../Home.styled';
 import * as UseHome from '../useHome';
 
@@ -20,6 +20,8 @@ describe('Home', () => {
   const destinationPorts = mockedPorts;
   const originPorts = mockedPorts;
 
+  const rates = mockedPorts;
+
   beforeEach(() => {
     useHome = jest.spyOn(UseHome, 'useHome');
     handleDestinationChange = jest.fn();
@@ -29,6 +31,7 @@ describe('Home', () => {
       handleOriginChange,
       destinationPorts,
       originPorts,
+      rates,
       selectedDestination: valueA,
       selectedOrigin: valueB
     });
@@ -82,6 +85,12 @@ describe('Home', () => {
     const component = setup();
     const selectDestination = component.find(Styled.SelectDestination);
     expect(selectDestination.length).toBe(1);
+  });
+
+  it('should render a `RenderChart` component', () => {
+    const component = setup();
+    const renderChart = component.find(RenderChart);
+    expect(renderChart.length).toBe(1);
   });
 
   describe('select origin', () => {
@@ -145,6 +154,26 @@ describe('Home', () => {
       onChangeProp();
 
       expect(handleDestinationChange).toHaveBeenCalled();
+    });
+  });
+
+  describe('RenderChart', () => {
+    it('should render `no chart` when `rates`, or `selectedDestination`, or `selectedOrigin` are not provided', () => {
+      const component = shallow(<RenderChart />);
+      const noChart = component.find(Styled.NoChart);
+      expect(noChart.length).toBe(1);
+    });
+
+    it('should render `chart` when `rates`, `selectedDestination`, and `selectedOrigin` are provided', () => {
+      const component = shallow(
+        <RenderChart
+          rates={rates}
+          selectedDestination={valueA}
+          selectedOrigin={valueB}
+        />
+      );
+      const chart = component.find(Styled.Chart);
+      expect(chart.length).toBe(1);
     });
   });
 });

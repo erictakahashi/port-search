@@ -26,6 +26,8 @@ describe('useHome Hook', () => {
   const destinationPorts = mockedPorts;
   const originPorts = mockedPorts;
 
+  const rates = mockedPorts;
+
   const mockedValue = 'Value';
   const mockedEvent = { target: { value: mockedValue } };
 
@@ -49,6 +51,7 @@ describe('useHome Hook', () => {
     useSelector.mockReturnValue({
       destinationPorts,
       originPorts,
+      rates,
       selectedDestination: valueA,
       selectedOrigin: valueB
     });
@@ -80,6 +83,11 @@ describe('useHome Hook', () => {
   it('should return `originPorts` from store', () => {
     const { result: { current } } = buildHook();
     expect(current.originPorts).toEqual(originPorts);
+  });
+
+  it('should return `rates` from store', () => {
+    const { result: { current } } = buildHook();
+    expect(current.rates).toEqual(rates);
   });
 
   it('should return `selectedDestination` from store', () => {

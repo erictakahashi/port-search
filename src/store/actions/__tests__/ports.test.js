@@ -5,6 +5,7 @@ import {
   getPorts,
   getRates,
   portsActions,
+  prepareDataForGraph,
   removePort,
   selectDestination,
   selectOrigin
@@ -131,7 +132,9 @@ describe('ports action', () => {
     const destinationPort = 'destination';
 
     it('should not call axios `get` nor `dispatch` when a destination or origin port is not provided', () => {
-      getRates(originPort, '')(dispatch);
+      getState.mockReturnValue({ ports: { rates: [] } });
+
+      getRates(originPort, '')(dispatch, getState);
 
       expect(get).not.toHaveBeenCalled();
       expect(dispatch).not.toHaveBeenCalled();
@@ -142,8 +145,9 @@ describe('ports action', () => {
         setTimeout(() => resolve(), 100)
       ));
       get.mockReturnValue(promiseTimeout);
+      getState.mockReturnValue({ ports: { rates: [] } });
 
-      getRates(originPort, destinationPort)(dispatch);
+      getRates(originPort, destinationPort)(dispatch, getState);
 
       const expectedPath = `/rates?origin=${originPort}&destination=${destinationPort}`;;
       expect(get).toHaveBeenCalledWith(expectedPath);
@@ -159,37 +163,74 @@ describe('ports action', () => {
       const promiseResolve = new Promise((resolve) => (
         setTimeout(() => resolve({ data: ports }), 100)
       ));
-      getState.mockReturnValue({ ports: { ports: [] } });
       get.mockReturnValue(promiseResolve);
+      getState.mockReturnValue({ ports: { rates: [] } });
 
-      getRates(originPort, destinationPort)(dispatch);
+      getRates(originPort, destinationPort)(dispatch, getState);
 
       return get().then(resolve => {
         expect(dispatch).toHaveBeenCalledWith({
           type: portsActions.SET_RATES,
-          payload: resolve.data
+          payload: prepareDataForGraph(resolve.data)
         });
       });
     });
 
-    it('should call dispatch with `HAS_ERROR` action and the `get` error as the payload', () => {
-      const error = 'Error';
-      const promiseReject = new Promise((_, reject) => (
-        setTimeout(() => reject(error), 100)
-      ));
+    describe('catch', () => {
+      it('should call dispatch with `HAS_ERROR` action and the `get` error as the payload', () => {
+        const error = 'Error';
+        const promiseReject = new Promise((_, reject) => (
+          setTimeout(() => reject(error), 100)
+        ));
+        get.mockReturnValue(promiseReject);
+        getState.mockReturnValue({ ports: { rates: [] } });
 
-      getState.mockReturnValue({ ports: { ports: [] } });
-      get.mockReturnValue(promiseReject);
+        getRates(originPort, destinationPort)(dispatch, getState);
 
-      getRates(originPort, destinationPort)(dispatch);
-
-      return get().catch(er => {
-        expect(dispatch).toHaveBeenCalledWith({
-          type: appActions.HAS_ERROR,
-          payload: er
+        return get().catch(er => {
+          expect(dispatch).toHaveBeenCalledWith({
+            type: appActions.HAS_ERROR,
+            payload: er
+          });
         });
       });
-    });
+
+      it('should not call dispatch with `SET_RATES` action when state `rates` is an empty array', () => {
+        const error = 'Error';
+        const promiseReject = new Promise((_, reject) => (
+          setTimeout(() => reject(error), 100)
+        ));
+        get.mockReturnValue(promiseReject);
+        getState.mockReturnValue({ ports: { rates: [] } });
+
+        getRates(originPort, destinationPort)(dispatch, getState);
+
+        return get().catch(() => {
+          expect(dispatch).not.toHaveBeenCalledWith({
+            type: portsActions.SET_RATES,
+            payload: []
+          });
+        });
+      });
+
+      it('should call dispatch with `SET_RATES` action when state `rates` is not an empty array', () => {
+        const error = 'Error';
+        const promiseReject = new Promise((_, reject) => (
+          setTimeout(() => reject(error), 100)
+        ));
+        get.mockReturnValue(promiseReject);
+        getState.mockReturnValue({ ports: { rates: ['A'] } });
+
+        getRates(originPort, destinationPort)(dispatch, getState);
+
+        return get().catch(() => {
+          expect(dispatch).toHaveBeenCalledWith({
+            type: portsActions.SET_RATES,
+            payload: []
+          });
+        });
+      });
+    })
   });
 
   describe('selectDestination', () => {
@@ -274,6 +315,23 @@ describe('ports action', () => {
         type: testAction,
         payload: removePort(ports, code)
       });
+    });
+  });
+
+  describe('prepareDataForGraph', () => {
+    it('should return the expected data', () => {
+      const rawData = [
+        { day: 'day', mean: 150, low: 100, high: 300 }
+      ];
+
+      const expectedData = [
+        ['day', 'mean', 'low', 'high'],
+        ['day', 150, 100, 300]
+      ];
+
+      const dataForGraph = prepareDataForGraph(rawData);
+
+      expect(dataForGraph).toEqual(expectedData);
     });
   });
 
